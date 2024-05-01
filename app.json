@@ -1,0 +1,14 @@
+{
+  "name": "Stantech",
+  "displayName": "Stantech",
+  "expo": {
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(Stantech) to use your location."
+        }
+      ]
+    ]
+  }
+}
