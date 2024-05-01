@@ -57,11 +57,14 @@ export default function Maps({ route }) {
   const [duration, setDuration] = useState(0);
   const [userPath, setUserPath] = useState([]);
   const [currentuserPath, setCurrentUserPath] = useState([]);
+  const [showLocation, setShowLocation] = useState(false);
   const mapRef = useRef(null);
 
   useEffect(() => {
+    console.log(showLocation);
     // Function to get current location
     const getCurrentLocation = () => {
+      if(showLocation == true){
       Geolocation.getCurrentPosition(
         (position) => {
           console.log(position, "posi");
@@ -75,27 +78,23 @@ export default function Maps({ route }) {
           setUserPath((prevPath) => [...prevPath, currentPosition]);
           moveTo(currentPosition);
         },
-        // (error) => console.log(error),
-        // { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
       );
+    }
     };
   
     getCurrentLocation();
 
-    const intervalId = setInterval(getCurrentLocation, 600000);
+    const intervalId = setInterval(getCurrentLocation, 10000);
   
     return () => clearInterval(intervalId);
-  }, []);
+  }, [showLocation]);
 
   const traceRouteOnReady = (args) => {
-    console.log(args);
     if (args) {
       setDistance(args.distance);
       setDuration(args.duration);
     }
   };
-
-  console.log(distance);
 
   const traceRoute = () => {
     if (origin && destination) {
@@ -125,6 +124,11 @@ export default function Maps({ route }) {
     }
   };
 
+  const locationupdate = () => {
+    setUserPath([]);
+    setShowLocation(false);
+  }
+
   return (
     <View style={styles.container}>
       <MapView
@@ -152,8 +156,17 @@ export default function Maps({ route }) {
         />
         {userPath.length > 0 && <Marker image={require("../screens/image/Red_Arrow_Left.png")} coordinate={userPath[userPath.length - 1]} />}
       </MapView>
+      <View style={styles.buttonContainer}>
+      <TouchableOpacity style={showLocation == false ? styles.clickButton : styles.clickoutButton} onPress={() => setShowLocation(true)}>
+        <Text style={styles.text}>Check in</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={showLocation == true ? styles.clickButton : styles.clickoutButton} onPress={() => locationupdate()}>
+        <Text style={styles.text}>Check out</Text>
+      </TouchableOpacity>
+      </View>
+      {distance && duration ? (
       <View style={styles.searchContainer}>
-        <InputAutocomplete
+        {/* <InputAutocomplete
           label="Origin"
           onPlaceSelected={(details) => onPlaceSelected(details, "origin")}
         />
@@ -163,14 +176,14 @@ export default function Maps({ route }) {
         />
         <TouchableOpacity style={styles.button} onPress={traceRoute}>
           <Text style={styles.buttonText}>Trace route</Text>
-        </TouchableOpacity>
-        {distance && duration ? (
+        </TouchableOpacity> */}
+      
           <View>
             <Text>Distance: {distance.toFixed(2)}</Text>
             <Text>Duration: {Math.ceil(duration)} min</Text>
           </View>
-        ) : null}
       </View>
+        ) : null}
     </View>
   );
 }
@@ -183,8 +196,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   map: {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
+    width: "100%",
+    height: "90%",
   },
   searchContainer: {
     position: "absolute",
@@ -212,4 +225,35 @@ const styles = StyleSheet.create({
   buttonText: {
     textAlign: "center",
   },
+
+  buttonContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+     },
+     clickButton:{
+       backgroundColor: 'green',
+       width: '30%',
+       borderRadius: 8,
+       height: 30,
+       justifyContent: 'center',
+       alignItems: 'center',
+       margin: 10
+     },
+     clickoutButton: {
+      backgroundColor: 'red',
+      width: '30%',
+      borderRadius: 8,
+      height: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+      margin: 10
+     },
+     text: {
+       color: 'white',
+       alignSelf: 'center',
+       textAlign: 'center',
+       justifyContent: 'center',
+     }
 });
