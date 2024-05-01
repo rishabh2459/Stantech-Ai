@@ -84,7 +84,7 @@ export default function Maps({ route }) {
   
     getCurrentLocation();
 
-    const intervalId = setInterval(getCurrentLocation, 10000);
+    const intervalId = setInterval(getCurrentLocation, 600000);
   
     return () => clearInterval(intervalId);
   }, [showLocation]);
